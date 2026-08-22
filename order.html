@@ -109,7 +109,6 @@
     function renderProducts() {
       var grid = document.getElementById('product-grid');
       var filtered = [];
-      
       for (var i = 0; i < products.length; i++) {
         if (selectedCat === 'ទាំងអស់' || products[i].category === selectedCat) {
           filtered.push(products[i]);
