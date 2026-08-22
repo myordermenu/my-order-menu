@@ -3,52 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>កុម្ម៉ង់ទំនិញ - Order Menu</title>
+  <title>My Order Menu</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 15px; background: #f4f4f9; margin: 0; }
-    .order-container { max-width: 500px; margin: auto; }
-    h2 { color: #333; text-align: center; margin-bottom: 15px; }
-    
-    /* Category Filter Buttons */
-    .category-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-    .category-container::-webkit-scrollbar { display: none; }
-    .cat-btn { background: #e0e0e0; color: #333; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; white-space: nowrap; }
-    .cat-btn.active { background: #28a745; color: white; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f7f8fa; color: #333; padding-bottom: 90px; }
 
-    /* Product Cards */
-    .card { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .item-name { font-weight: bold; color: #333; font-size: 15px; }
-    .qty-controls { display: flex; align-items: center; gap: 8px; }
-    .btn-action { width: 32px; height: 32px; border: none; border-radius: 6px; font-weight: bold; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-minus { background: #dc3545; color: white; }
-    .btn-plus { background: #28a745; color: white; }
-    .qty-number { font-weight: bold; font-size: 16px; min-width: 20px; text-align: center; }
+    /* Header */
+    .header { background: #fff; padding: 15px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .header h1 { font-size: 20px; color: #1a1a1a; font-weight: 700; }
+
+    /* Category Slider */
+    .category-slider { display: flex; gap: 10px; padding: 15px 20px; overflow-x: auto; background: #fff; scrollbar-width: none; }
+    .category-slider::-webkit-scrollbar { display: none; }
+    .cat-chip { padding: 8px 18px; border-radius: 25px; background: #f0f2f5; color: #666; font-size: 14px; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .cat-chip.active { background: #10b981; color: #fff; }
+
+    /* Product Grid Layout (2 Columns like TikTok sample) */
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 600px; margin: auto; }
     
-    /* Cart Area */
-    .cart { background: white; padding: 15px; margin-top: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    input { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-    .submit-btn { width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    /* Product Card Design */
+    .product-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
+    .product-card:active { transform: scale(0.98); }
+    .img-container { width: 100%; height: 140px; background: #f9fafb; position: relative; }
+    .img-container img { width: 100%; height: 100%; object-fit: cover; }
+    .card-body { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+    .product-title { font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 8px; line-height: 1.3; }
+    
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .product-price { font-size: 15px; font-weight: 700; color: #10b981; }
+    
+    /* Quantity Controls */
+    .controls { display: flex; align-items: center; gap: 6px; }
+    .btn-qty { width: 28px; height: 28px; border-radius: 50%; border: none; background: #10b981; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-minus { background: #ef4444; }
+    .qty-text { font-size: 14px; font-weight: 700; min-width: 16px; text-align: center; }
+
+    /* Bottom Bar & Cart Modal */
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: auto; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+    .cart-btn { background: #10b981; color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; }
+
+    /* Simple Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: flex-end; }
+    .modal-content { background: #fff; width: 100%; max-width: 600px; padding: 20px; border-top-left-radius: 24px; border-top-right-radius: 24px; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none; }
+    input:focus { border-color: #10b981; }
   </style>
 </head>
 <body>
 
-  <div class="order-container">
-    <h2>🛍️ បញ្ជីកុម្ម៉ង់ទំនិញ</h2>
-    
-    <!-- Category Tabs -->
-    <div class="category-container" id="category-list"></div>
+  <div class="header">
+    <h1>🍹 បញ្ជីកុម្ម៉ង់ទំនិញ</h1>
+  </div>
 
-    <!-- Item List -->
-    <div id="items-list"></div>
+  <!-- Category Filter Buttons -->
+  <div class="category-slider" id="category-slider"></div>
 
-    <!-- Cart Summary -->
-    <div class="cart">
-      <h3 style="margin-top:0;">🛒 សរុបកន្ត្រកទំនិញ</h3>
-      <div id="cart-details" style="color: #666;">មិនទាន់មានទំនិញ</div>
-      <hr style="border: 0.5px solid #eee; margin: 10px 0;">
+  <!-- Product Grid -->
+  <div class="product-grid" id="product-grid"></div>
+
+  <!-- Bottom Floating Order Bar -->
+  <div class="bottom-bar">
+    <button class="cart-btn" onclick="openCartModal()">🛒 មើលកន្ត្រកទំនិញ (<span id="cart-count">0</span>)</button>
+  </div>
+
+  <!-- Order Details & Checkout Modal -->
+  <div class="modal" id="cart-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🛒 ព័ត៌មានការកុម្ម៉ង់</h3>
+        <button class="close-btn" onclick="closeCartModal()">✕</button>
+      </div>
+      <div id="modal-cart-items" style="margin-bottom: 15px; color: #4b5563;"></div>
       <input type="text" id="cust-name" placeholder="ឈ្មោះរបស់អ្នក" required>
       <input type="tel" id="cust-phone" placeholder="លេខទូរស័ព្ទ" required>
-      <button class="submit-btn" onclick="sendOrder()">ផ្ញើ Order តាម Telegram</button>
+      <button class="cart-btn" style="margin-top: 15px;" onclick="sendTelegramOrder()">ផ្ញើការកុម្ម៉ង់តាម Telegram</button>
     </div>
   </div>
 
@@ -56,236 +86,119 @@
     const BOT_TOKEN = '8751581339:AAEFWsTwrxW449F8jawvdVb_nkC604TpAe4';
     const CHAT_ID = '-5500117563';
 
-    const categories = ['ទាំងអស់', 'ស្រាបៀរ', 'ទឹកសុទ្ធ', 'នំ', 'បារី1សុខ', 'ប្រេងឆា', 'កេស/ដប', 'មី'];
+    const categories = ['ទាំងអស់', 'ស្រាបៀរ', 'ភេសជ្ជៈ', 'មី'];
 
+    // រូបភាពគំរូ Unsplash (អ្នកអាចប្ដូរ URL រូបភាព `image` តាមចិត្តបាន)
     const products = [
-      // ស្រាបៀរ
-      { name: 'ហនុមានស', category: 'ស្រាបៀរ' },
-      { name: 'ហនុមានខ្មៅ', category: 'ស្រាបៀរ' },
-      { name: 'កម្ពុជាស', category: 'ស្រាបៀរ' },
-      { name: 'ហ្គេនបឺតស', category: 'ស្រាបៀរ' },
-      { name: 'ហ្គេនបឺតក្រហម', category: 'ស្រាបៀរ' },
-      { name: 'ABC', category: 'ស្រាបៀរ' },
-      { name: 'ហនុមានខៀវ', category: 'ស្រាបៀរ' },
-
-      // ទឹកសុទ្ធ
-      { name: 'ទឹកកម្ពុជា500មីលីលីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'ទឹកកម្ពុជា1.5លីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'ទឹកប្រូឌីជា1.5លីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'ទឹកប្រូឌីជា500មីលីលីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'ទឹកសុទ្ធឆុងដោះគោតូច1លីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'លីយ៉ុង1.5លីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'វីតាល់1.5លីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'វីតាល់250មីលីលីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'វីតាល់350មីលីលីត្រ', category: 'ទឹកសុទ្ធ' },
-      { name: 'វីតាល់500មីលីលីត្រ', category: 'ទឹកសុទ្ធ' },
-
-      // នំ / ស្ករគ្រាប់
-      { name: 'តាហួយបឺតវែងហួយហួយ', category: 'នំ' },
-      { name: 'ជើងទាឆ្ងាញ់', category: 'នំ' },
-      { name: 'ទំពាំងជប៉ុន', category: 'នំ' },
-      { name: 'នំ500', category: 'នំ' },
-      { name: 'នំការ៉េម', category: 'នំ' },
-      { name: 'នំកូនតោ', category: 'នំ' },
-      { name: 'នំតោឆ្ងាញ់', category: 'នំ' },
-      { name: 'នំចញ៉ាន', category: 'នំ' },
-      { name: 'នំដូង', category: 'នំ' },
-      { name: 'ដំឡូងwinwin', category: 'នំ' },
-      { name: 'នំត្រីកោណ', category: 'នំ' },
-      { name: 'នំប៊ីហ្វ៊ី', category: 'នំ' },
-      { name: 'នំបំពង់សូកូឡាដំបែ', category: 'នំ' },
-      { name: 'នំប្រដួងOkay', category: 'នំ' },
-      { name: 'នំពងទា366', category: 'នំ' },
-      { name: 'នំពងទាជូលីណា', category: 'នំ' },
-      { name: 'នំពងទាស្រោបសាច់មាន់ផាត់', category: 'នំ' },
-      { name: 'នំបាងសូលីត', category: 'នំ' },
-      { name: 'នំប៉័ងប៉ុន', category: 'នំ' },
-      { name: 'នំពោតតោ', category: 'នំ' },
-      { name: 'នំមូគីតា', category: 'នំ' },
-      { name: 'នំម៉ូលីជប៉ុន', category: 'នំ' },
-      { name: 'នំដា', category: 'នំ' },
-      { name: 'នំសាច់មាន់ស្រួយ', category: 'នំ' },
-      { name: 'បាយក្ដាំង', category: 'នំ' },
-      { name: 'ប្រហិតក្ដាមវែង', category: 'នំ' },
-      { name: 'ពងក្រូចសាច់គោប្រអប់', category: 'នំ' },
-      { name: 'សណ្តែកខៀវសំណាង', category: 'នំ' },
-      { name: 'ស្ករប៉ុងតុក្កតា', category: 'នំ' },
-      { name: 'ស្ករឆ្អឹងឆ្កែ', category: 'នំ' },
-      { name: 'ស្ករដងយករូប', category: 'នំ' },
-      { name: 'ស្ករទន់3រសជាតិ', category: 'នំ' },
-      { name: 'ស្ករប្លែក', category: 'នំ' },
-      { name: 'ស្ករបាល់', category: 'នំ' },
-      { name: 'ស្ករពពុះតាង', category: 'នំ' },
-      { name: 'ស្ករភ្នែក', category: 'នំ' },
-      { name: 'ស្កររូបគោ', category: 'នំ' },
-      { name: 'ស្ករឪឡឹកអ៊ិច', category: 'នំ' },
-      { name: 'ហាតដក១គ្រាប់', category: 'នំ' },
-      { name: 'អណ្ដាតឈើឆ្កឹះ', category: 'នំ' },
-
-      // បារី1សុខ
-      { name: 'បារី555', category: 'បារី1សុខ' },
-      { name: 'បារីដើមដូង', category: 'បារី1សុខ' },
-      { name: 'បារីម៉េសាវ៉ែន', category: 'បារី1សុខ' },
-      { name: 'បារីជជោះ', category: 'បារី1សុខ' },
-      { name: 'បារីនស្តូន', category: 'បារី1សុខ' },
-      { name: 'បារីសេក', category: 'បារី1សុខ' },
-      { name: 'បារីហ្វ៊ីន', category: 'បារី1សុខ' },
-      { name: 'បារីអ៊ុយសេ', category: 'បារី1សុខ' },
-      { name: 'បារីអីសា ក្រហម', category: 'បារី1សុខ' },
-      { name: 'បារីអីសា ខៀវ', category: 'បារី1សុខ' },
-
-      // ប្រេងឆា
-      { name: 'ប្រេង5លីត្រ', category: 'ប្រេងឆា' },
-      { name: 'ប្រេងកាន', category: 'ប្រេងឆា' },
-      { name: 'ប្រេងសុខភាព', category: 'ប្រេងឆា' },
-
-      // កេស/ដប
-      { name: 'កូកាកំប៉ុង', category: 'កេស/ដប' },
-      { name: 'គីងកុង១កេស', category: 'កេស/ដប' },
-      { name: 'គ្រុឌ១កេស', category: 'កេស/ដប' },
-      { name: 'ឆែមពាន១កេស', category: 'កេស/ដប' },
-      { name: 'ដាស១កេស', category: 'កេស/ដប' },
-      { name: 'ត្រាហ្គន១កេស', category: 'កេស/ដប' },
-      { name: 'ទឹកប្រទាល១កេស', category: 'កេស/ដប' },
-      { name: 'បាកាស១កេស', category: 'កេស/ដប' },
-      { name: 'ប្រូការី', category: 'កេស/ដប' },
-      { name: 'ប្រូការីខ្មៅ', category: 'កេស/ដប' },
-      { name: 'ប្រូស្ត្រង់', category: 'កេស/ដប' },
-      { name: 'ភេសជ្ជៈកម្ពុជា', category: 'កេស/ដប' },
-      { name: 'វើក', category: 'កេស/ដប' },
-      { name: 'ស្ទឹងកំប៉ុង', category: 'កេស/ដប' },
-      { name: 'ស្ទឹងដប', category: 'កេស/ដប' },
-      { name: 'ហាប៊ា១កេស', category: 'កេស/ដប' },
-      { name: 'អាយដប', category: 'កេស/ដប' },
-      { name: 'អាយដបតូច', category: 'កេស/ដប' },
-      { name: 'អាយដល', category: 'កេស/ដប' },
-      { name: 'អាយ១.៥លីត្រ១យួរ', category: 'កេស/ដប' },
-      { name: 'អិចប្រេស', category: 'កេស/ដប' },
-
-      // មី
-      { name: 'មីកូរ៉េបុកកូរ៉េ7កញ្ចប់', category: 'មី' },
-      { name: 'មីកំប៉ុងកូរ៉េ7 1ដុំ', category: 'មី' },
-      { name: 'មីកំប៉ុងកូរ៉េធម្មតា', category: 'មី' },
-      { name: 'មីខ្លាឃ្មុំ1កញ្ចប់', category: 'មី' },
-      { name: 'មីគោតកដេណូ1កេស', category: 'មី' },
-      { name: 'មីគោតកដេណូ មី១កញ្ចប់', category: 'មី' },
-      { name: 'មីជាតិកញ្ចប់ 1កេស', category: 'មី' },
-      { name: 'មីជាតិ កញ្ចប់1កញ្ចប់', category: 'មី' },
-      { name: 'មីជាតិកំប៉ុង 1ដុំ', category: 'មី' },
-      { name: 'មីប៊ូដាក់', category: 'មី' },
-      { name: 'មីសួ', category: 'មី' }
+      { name: 'ហនុមាន ស', category: 'ស្រាបៀរ', price: '$1.00', image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=300' },
+      { name: 'ហនុមាន ខ្មៅ', category: 'ស្រាបៀរ', price: '$1.20', image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=300' },
+      { name: 'កម្ពុជា ស', category: 'ស្រាបៀរ', price: '$0.90', image: 'https://images.unsplash.com/photo-1567696911980-2eed69a46042?w=300' },
+      { name: 'កូកាកូឡា', category: 'ភេសជ្ជៈ', price: '$0.75', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300' },
+      { name: 'ខារ៉ាប៉ាវ', category: 'ភេសជ្ជៈ', price: '$0.75', image: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=300' },
+      { name: 'មីកូរ៉េ', category: 'មី', price: '$1.50', image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300' }
     ];
 
-    let currentCategory = 'ទាំងអស់';
+    let selectedCat = 'ទាំងអស់';
     let cart = {};
 
     function renderCategories() {
-      const catList = document.getElementById('category-list');
-      catList.innerHTML = categories.map(cat => `
-        <button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="selectCategory('${cat}')">${cat}</button>
+      const container = document.getElementById('category-slider');
+      container.innerHTML = categories.map(cat => `
+        <button class="cat-chip ${cat === selectedCat ? 'active' : ''}" onclick="filterCat('${cat}')">${cat}</button>
       `).join('');
     }
 
-    function selectCategory(cat) {
-      currentCategory = cat;
+    function filterCat(cat) {
+      selectedCat = cat;
       renderCategories();
       renderProducts();
     }
 
     function renderProducts() {
-      const list = document.getElementById('items-list');
-      const filtered = currentCategory === 'ទាំងអស់' 
-        ? products 
-        : products.filter(p => p.category === currentCategory);
+      const grid = document.getElementById('product-grid');
+      const filtered = selectedCat === 'ទាំងអស់' ? products : products.filter(p => p.category === selectedCat);
 
-      list.innerHTML = filtered.map(p => {
+      grid.innerHTML = filtered.map(p => {
         const qty = cart[p.name] || 0;
         return `
-          <div class="card">
-            <span class="item-name">${p.name}</span>
-            <div class="qty-controls">
-              ${qty > 0 ? `<button class="btn-action btn-minus" onclick="removeFromCart('${p.name}')">-</button>` : ''}
-              ${qty > 0 ? `<span class="qty-number">${qty}</span>` : ''}
-              <button class="btn-action btn-plus" onclick="addToCart('${p.name}')">+</button>
+          <div class="product-card">
+            <div class="img-container">
+              <img src="${p.image}" alt="${p.name}">
+            </div>
+            <div class="card-body">
+              <div class="product-title">${p.name}</div>
+              <div class="card-footer">
+                <div class="product-price">${p.price}</div>
+                <div class="controls">
+                  ${qty > 0 ? `<button class="btn-qty btn-minus" onclick="changeQty('${p.name}', -1)">-</button>` : ''}
+                  ${qty > 0 ? `<span class="qty-text">${qty}</span>` : ''}
+                  <button class="btn-qty" onclick="changeQty('${p.name}', 1)">+</button>
+                </div>
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function addToCart(name) {
-      cart[name] = (cart[name] || 0) + 1;
+    function changeQty(name, delta) {
+      cart[name] = (cart[name] || 0) + delta;
+      if (cart[name] <= 0) delete cart[name];
       renderProducts();
-      updateCartUI();
+      updateCartCount();
     }
 
-    function removeFromCart(name) {
-      if (cart[name]) {
-        cart[name] -= 1;
-        if (cart[name] <= 0) delete cart[name];
-      }
-      renderProducts();
-      updateCartUI();
+    function updateCartCount() {
+      const total = Object.values(cart).reduce((a, b) => a + b, 0);
+      document.getElementById('cart-count').innerText = total;
     }
 
-    function updateCartUI() {
-      const details = document.getElementById('cart-details');
+    function openCartModal() {
+      const itemsContainer = document.getElementById('modal-cart-items');
       const keys = Object.keys(cart);
       if (keys.length === 0) {
-        details.innerHTML = 'មិនទាន់មានទំនិញ';
-        return;
+        itemsContainer.innerHTML = 'មិនទាន់មានទំនិញក្នុងកន្ត្រកទេ';
+      } else {
+        itemsContainer.innerHTML = keys.map(k => `
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>• ${k}</span>
+            <b>x ${cart[k]}</b>
+          </div>
+        `).join('');
       }
-      details.innerHTML = keys.map(k => `<div>• ${k} x <b>${cart[k]}</b></div>`).join('');
+      document.getElementById('cart-modal').style.display = 'flex';
     }
 
-    function sendOrder() {
+    function closeCartModal() {
+      document.getElementById('cart-modal').style.display = 'none';
+    }
+
+    function sendTelegramOrder() {
       const name = document.getElementById('cust-name').value;
       const phone = document.getElementById('cust-phone').value;
-
-      if (!name || !phone) {
-        alert('សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទ!');
-        return;
-      }
-
       const keys = Object.keys(cart);
-      if (keys.length === 0) {
-        alert('សូមជ្រើសរើសទំនិញយ៉ាងហោចណាស់ ១!');
-        return;
-      }
 
-      let orderText = `🛒 *មាន Order ថ្មី (ពី GitHub Menu)*\n\n`;
-      orderText += `👤 *ឈ្មោះ:* ${name}\n`;
-      orderText += `📞 *ទូរស័ព្ទ:* ${phone}\n\n`;
-      orderText += `📦 *មុខទំនិញ:*\n`;
-      keys.forEach(k => {
-        orderText += `- ${k}: ${cart[k]}\n`;
-      });
+      if (!name || !phone) return alert('សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទ!');
+      if (keys.length === 0) return alert('សូមជ្រើសរើសទំនិញ!');
+
+      let msg = `🛒 *មាន Order ថ្មី*\n\n👤 *ឈ្មោះ:* ${name}\n📞 *ទូរស័ព្ទ:* ${phone}\n\n📦 *មុខទំនិញ:*\n`;
+      keys.forEach(k => msg += `- ${k}: ${cart[k]}\n`);
 
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: orderText,
-          parse_mode: 'Markdown'
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          alert('ការកុម្ម៉ង់បានជោគជ័យ!');
+        body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode: 'Markdown' })
+      }).then(r => r.json()).then(res => {
+        if (res.ok) {
+          alert('កុម្ម៉ង់បានជោគជ័យ!');
           cart = {};
+          updateCartCount();
           renderProducts();
-          updateCartUI();
-          document.getElementById('cust-name').value = '';
-          document.getElementById('cust-phone').value = '';
-        } else {
-          alert('មានបញ្ហាក្នុងការផ្ញើ Order!');
+          closeCartModal();
         }
       });
     }
 
-    // Init App
     renderCategories();
     renderProducts();
   </script>
