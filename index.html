@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <!-- Receipt Modal (វិក្កយបត្រ) -->
+  <!-- Receipt Modal -->
   <div class="modal" id="receipt-modal">
     <div class="modal-content">
       <div class="receipt-box" id="receipt-content"></div>
@@ -119,9 +119,8 @@
 
     function renderProducts() {
       const grid = document.getElementById('product-grid');
-      const filtered = selectedCat === 'ទាំងអស់' ? products : products.filter(p => p.category === selectedCat);
-
-      grid.innerHTML = filtered.map(p => {
+      const filtered = selectedCat === '```javascript
+      filtered.map(p => {
         const qty = cart[p.name] || 0;
         return `
           <div class="product-card">
@@ -189,19 +188,26 @@
         const item = products.find(p => p.name === k);
         const itemTotal = item ? item.price * cart[k] : 0;
         totalAmount += itemTotal;
-        msg += `- ${k}: ${cart[k]} x $${item.price.toFixed(2)} = $${itemTotal.toFixed(2)}\n`;
+        msg += `- ${k}: ${cart[k]} x $${item ? item.price.toFixed(2) : 0} = $${itemTotal.toFixed(2)}\n`;
       });
       msg += `\n💰 *សរុប:* $${totalAmount.toFixed(2)}`;
 
-      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      fetch(`[https://api.telegram.org/bot$](https://api.telegram.org/bot$){BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode: 'Markdown' })
-      }).then(r => r.json()).then(res => {
+      })
+      .then(r => r.json())
+      .then(res => {
         if (res.ok) {
           closeCartModal();
           showReceipt(name, phone, totalAmount);
+        } else {
+          alert('ផ្ញើមិនចេញទេ! Telegram Error: ' + res.description);
         }
+      })
+      .catch(err => {
+        alert('Network Error: ' + err);
       });
     }
 
