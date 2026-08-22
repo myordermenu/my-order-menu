@@ -11,6 +11,10 @@
     .card { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .btn { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     .cart { background: white; padding: 15px; margin-top: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #eee; }
+    .action-btn { width: 28px; height: 28px; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    .btn-minus { background: #dc3545; color: white; }
+    .btn-plus { background: #28a745; color: white; }
     input { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
     .submit-btn { width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
   </style>
@@ -62,6 +66,16 @@
       updateCartUI();
     }
 
+    function removeFromCart(name) {
+      if (cart[name]) {
+        cart[name] -= 1;
+        if (cart[name] <= 0) {
+          delete cart[name];
+        }
+      }
+      updateCartUI();
+    }
+
     function updateCartUI() {
       const details = document.getElementById('cart-details');
       const keys = Object.keys(cart);
@@ -69,7 +83,15 @@
         details.innerHTML = 'មិនទាន់មានទំនិញ';
         return;
       }
-      details.innerHTML = keys.map(k => `<div>${k} x <b>${cart[k]}</b></div>`).join('');
+      details.innerHTML = keys.map(k => `
+        <div class="cart-item">
+          <span>${k} (x<b>${cart[k]}</b>)</span>
+          <div>
+            <button class="action-btn btn-minus" onclick="removeFromCart('${k}')">-</button>
+            <button class="action-btn btn-plus" onclick="addToCart('${k}')">+</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function sendOrder() {
@@ -92,7 +114,7 @@
       orderText += `📞 *ទូរស័ព្ទ:* ${phone}\n\n`;
       orderText += `📦 *មុខទំនិញ:*\n`;
       keys.forEach(k => {
-        orderText += `- ${k}:${cart[k]}\n`;
+        orderText += `- ${k}: ${cart[k]}\n`;
       });
 
       fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
