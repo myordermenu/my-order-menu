@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>កុម្ម៉ង់ទំនិញ - Order Menu</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 15px; background: #f4f4f9; margin: 0; }
+    .order-container { max-width: 500px; margin: auto; }
+    h2 { color: #333; text-align: center; }
+    .card { background: white; padding: 12px 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .btn { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .cart { background: white; padding: 15px; margin-top: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    input { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+    .submit-btn { width: 100%; background: #0088cc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="order-container">
+    <h2>🥤 បញ្ជីភេសជ្ជៈកុម្ម៉ង់</h2>
+    <div id="items-list"></div>
+
+    <div class="cart">
+      <h3>🛒 កន្ត្រកទំនិញ</h3>
+      <div id="cart-details" style="color: #666;">មិនទាន់មានទំនិញ</div>
+      <hr style="border: 0.5px solid #eee; margin: 10px 0;">
+      <input type="text" id="cust-name" placeholder="ឈ្មោះរបស់អ្នក" required>
+      <input type="tel" id="cust-phone" placeholder="លេខទូរស័ព្ទ" required>
+      <button class="submit-btn" onclick="sendOrder()">ផ្ញើ Order តាម Telegram</button>
+    </div>
+  </div>
+
+  <script>
+    const BOT_TOKEN = '8751581339:AAEFWsTwrxW449F8jawvdVb_nkC604TpAe4';
+    const CHAT_ID = '-5500117563';
+
+    const products = [
+      { id: 1, name: 'កម្ពុជាស ៦កំប៉ុង' },
+      { id: 2, name: 'កូកា ៦កំប៉ុង' },
+      { id: 3, name: 'កូកា ដប៦០០មីលីលីត្រ' },
+      { id: 4, name: 'គីងគង់ ៦កំប៉ុង' },
+      { id: 5, name: 'គីងគង់ ១កេស' },
+      { id: 6, name: 'គោ IQ' },
+      { id: 7, name: 'គោឃុន' }
+    ];
+
+    let cart = {};
+
+    function renderProducts() {
+      const list = document.getElementById('items-list');
+      list.innerHTML = products.map(p => `
+        <div class="card">
+          <span><b>${p.name}</b></span>
+          <button class="btn" onclick="addToCart('${p.name}')">+ បន្ថែម</button>
+        </div>
+      `).join('');
+    }
+
+    function addToCart(name) {
+      cart[name] = (cart[name] || 0) + 1;
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const details = document.getElementById('cart-details');
+      const keys = Object.keys(cart);
+      if (keys.length === 0) {
+        details.innerHTML = 'មិនទាន់មានទំនិញ';
+        return;
+      }
+      details.innerHTML = keys.map(k => `<div>${k} x <b>${cart[k]}</b></div>`).join('');
+    }
+
+    function sendOrder() {
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+
+      if (!name || !phone) {
+        alert('សូមបញ្ចូលឈ្មោះ និងលេខទូរស័ព្ទ!');
+        return;
+      }
+
+      const keys = Object.keys(cart);
+      if (keys.length === 0) {
+        alert('សូមជ្រើសរើសទំនិញយ៉ាងហោចណាស់ ១!');
+        return;
+      }
+
+      let orderText = `🛒 *មាន Order ថ្មី (ពី GitHub Menu)*\n\n`;
+      orderText += `👤 *ឈ្មោះ:* ${name}\n`;
+      orderText += `📞 *ទូរស័ព្ទ:* ${phone}\n\n`;
+      orderText += `📦 *មុខទំនិញ:*\n`;
+      keys.forEach(k => {
+        orderText += `- ${k}:${cart[k]}\n`;
+      });
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: orderText,
+          parse_mode: 'Markdown'
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          alert('ការកុម្ម៉ង់បានជោគជ័យ!');
+          cart = {};
+          updateCartUI();
+          document.getElementById('cust-name').value = '';
+          document.getElementById('cust-phone').value = '';
+        } else {
+          alert('មានបញ្ហាក្នុងការផ្ញើ Order!');
+        }
+      });
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
